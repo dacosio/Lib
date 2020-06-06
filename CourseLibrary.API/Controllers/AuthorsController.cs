@@ -74,6 +74,15 @@ namespace CourseLibrary.API.Controllers.Home
             return CreatedAtRoute("GetAuthor", new { authorId = authorEntityToReturn.Id }, authorEntityToReturn);
         }
 
+
+        [HttpOptions]
+        public IActionResult GetAuthorsOptions()
+        {
+            Response.Headers.Add("Allow", "GET,OPTIONS,POST");
+            return Ok();
+        }
+
+
         [HttpPut("{id}")]
         public IActionResult UpdateAuthor(Guid id, [FromBody] Author author)
         {
