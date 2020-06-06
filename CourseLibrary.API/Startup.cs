@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json.Serialization;
+using System;
 
 namespace CourseLibrary.API
 {
@@ -31,6 +33,11 @@ namespace CourseLibrary.API
 
             })
              .AddXmlDataContractSerializerFormatters()
+             .AddNewtonsoftJson(setupAction =>
+             {
+                 setupAction.SerializerSettings.ContractResolver =
+                 new CamelCasePropertyNamesContractResolver();
+             })
              .ConfigureApiBehaviorOptions(setupAction =>
              {
                  setupAction.InvalidModelStateResponseFactory = context =>
@@ -74,14 +81,16 @@ namespace CourseLibrary.API
                          ContentTypes = { "application/problem+json" }
                      };
                  };
+             });
 
-                 services.AddAutoMapper(typeof(Startup)); 
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
             services.AddScoped<ICourseLibraryRepository, CourseLibraryRepository>();
 
             services.AddDbContext<CourseLibraryContext>(options =>
             {
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
-            }); 
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -98,9 +107,10 @@ namespace CourseLibrary.API
                     appBuilder.Run(async context =>
                     {
                         context.Response.StatusCode = 500;
-                        await context.Response.WriteAsync("An unexpected fault happened. Try again later");
+                        await context.Response.WriteAsync("An unexpected fault happened. Try again later.");
                     });
                 });
+
             }
 
             app.UseRouting();
@@ -109,7 +119,7 @@ namespace CourseLibrary.API
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapDefaultControllerRoute();
+                endpoints.MapControllers();
             });
         }
     }

@@ -69,7 +69,4 @@ namespace CourseLibrary.API.Controllers
         }
 
     }
-
-
-    }
 }
