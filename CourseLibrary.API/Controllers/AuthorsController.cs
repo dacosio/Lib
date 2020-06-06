@@ -103,17 +103,18 @@ namespace CourseLibrary.API.Controllers.Home
 
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult DeleteAuthor(Guid id)
+        [HttpDelete("{authorId}")]
+        public IActionResult DeleteAuthor(Guid authorId)
         {
-            if (!_repository.AuthorExists(id))
+            var authorFromRepo = _repository.GetAuthor(authorId);
+
+            if (authorFromRepo == null)
             {
-                return NotFound("Author not Found");
+                return NotFound();
             }
 
-            var author = _repository.GetAuthor(id);
-
-            _repository.DeleteAuthor(author);
+            _repository.DeleteAuthor(authorFromRepo);
+            _repository.Save();
 
             return NoContent();
         }
